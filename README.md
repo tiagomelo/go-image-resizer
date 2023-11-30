@@ -1,5 +1,7 @@
 # go-image-resizer
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/tiagomelo/go-image-resizer.svg)](https://pkg.go.dev/github.com/tiagomelo/go-image-resizer)
+
 ![logo](logo.png)
 
 A tiny utility for resizing images with [ImageMagick](https://imagemagick.org/).
