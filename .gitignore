@@ -1,3 +1,4 @@
 TODO
 example/*.jpg
 .DS_Store
+coverage.out

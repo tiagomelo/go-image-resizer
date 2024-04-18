@@ -85,13 +85,19 @@ func (i *imageResizer) Resize(imageFilePath string) error {
 	return nil
 }
 
+// Destroy releases resources associated with the MagickWand.
+// It is the responsibility of the caller to invoke this function
+// on each ImageMagick object after the resize is complete to free up the memory.
+func (i *imageResizer) Destroy() {
+	i.mw.Destroy()
+}
+
 // Terminate releases resources used by imageResizer and ImageMagick. It is the responsibility
-// of the caller to invoke this method after completing image resizing operations. Failing to
+// of the caller to invoke this function after completing image resizing operations. Failing to
 // call Terminate can lead to resource leaks as it cleans up the MagickWand instance and
 // terminates the ImageMagick environment. This is crucial especially in long-running
 // applications or those processing large numbers of images, to avoid excessive memory usage.
-func (i *imageResizer) Terminate() {
-	i.mw.Destroy()
+func Terminate() {
 	imagick.Terminate()
 }
 
