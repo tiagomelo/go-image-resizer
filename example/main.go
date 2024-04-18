@@ -9,15 +9,18 @@ import (
 
 func main() {
 	const originalImgFile = "originalFile.jpg"
-	imageResizer := imageresizer.New(
+	ir := imageresizer.New(
 		imageresizer.WithDimensions(800, 600),
 		imageresizer.WithCompressionQuality(50),
 		imageresizer.WithFilterType(imageresizer.FILTER_LANCZOS),
 		imageresizer.WithOutputDir("/path/to/dir"),
 	)
-	defer imageResizer.Terminate()
-	if err := imageResizer.Resize(originalImgFile); err != nil {
+	if err := ir.Resize(originalImgFile); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	// Destroy should be called after Resize() completes.
+	ir.Destroy()
+	// Terminate() should be called when your program exits.
+	imageresizer.Terminate()
 }

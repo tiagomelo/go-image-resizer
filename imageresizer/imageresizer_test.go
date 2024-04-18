@@ -44,12 +44,13 @@ func TestNew(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ir := New(tc.options...)
-			defer ir.Terminate()
+			defer Terminate()
 			assert.Equal(t, tc.expectedNewWidth, ir.newWidth)
 			assert.Equal(t, tc.expectedNewHeight, ir.newHeight)
 			assert.Equal(t, tc.expectedCompressionQuality, ir.compressionQuality)
 			assert.Equal(t, tc.expectedOutputDir, ir.outputDir)
 			assert.Equal(t, tc.expectedFilterType, ir.filterType)
+			ir.Destroy()
 		})
 	}
 }
