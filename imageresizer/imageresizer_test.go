@@ -43,14 +43,16 @@ func TestNew(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			ir := New(tc.options...)
+			imgResizer := New(tc.options...)
 			defer Terminate()
+			ir, ok := imgResizer.(*imageResizer)
+			require.True(t, ok)
 			assert.Equal(t, tc.expectedNewWidth, ir.newWidth)
 			assert.Equal(t, tc.expectedNewHeight, ir.newHeight)
 			assert.Equal(t, tc.expectedCompressionQuality, ir.compressionQuality)
 			assert.Equal(t, tc.expectedOutputDir, ir.outputDir)
 			assert.Equal(t, tc.expectedFilterType, ir.filterType)
-			ir.Destroy()
+			imgResizer.Destroy()
 		})
 	}
 }
