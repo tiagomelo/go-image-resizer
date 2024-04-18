@@ -22,6 +22,16 @@ func init() {
 	}
 }
 
+type ImageResizer interface {
+	// Resize resizes the image located at imageFilePath according to the settings of the imageResizer.
+	// It returns an error if the resizing process fails.
+	Resize(imageFilePath string) error
+	// Destroy releases resources associated with the MagickWand.
+	// It is the responsibility of the caller to invoke this function
+	// on each ImageMagick object after the resize is complete to free up the memory.
+	Destroy()
+}
+
 // imageResizer encapsulates the settings and operations for resizing images.
 type imageResizer struct {
 	newWidth           *int       // Target width of the image; nil to keep original width.
@@ -33,7 +43,7 @@ type imageResizer struct {
 }
 
 // New initializes a new imageResizer with provided options.
-func New(options ...Option) *imageResizer {
+func New(options ...Option) ImageResizer {
 	imagick.Initialize() // Initialize the ImageMagick environment.
 	resizer := new(imageResizer)
 	for _, option := range options {
@@ -63,8 +73,6 @@ func (ir *imageResizer) ensureDimensions() error {
 	return nil
 }
 
-// Resize resizes the image located at imageFilePath according to the settings of the imageResizer.
-// It returns an error if the resizing process fails.
 func (i *imageResizer) Resize(imageFilePath string) error {
 	if err := i.mw.ReadImage(imageFilePath); err != nil {
 		return errors.Wrapf(err, "reading image %s", imageFilePath)
@@ -85,9 +93,6 @@ func (i *imageResizer) Resize(imageFilePath string) error {
 	return nil
 }
 
-// Destroy releases resources associated with the MagickWand.
-// It is the responsibility of the caller to invoke this function
-// on each ImageMagick object after the resize is complete to free up the memory.
 func (i *imageResizer) Destroy() {
 	i.mw.Destroy()
 }
