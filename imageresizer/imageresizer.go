@@ -24,8 +24,7 @@ func init() {
 
 type ImageResizer interface {
 	// Resize resizes the image located at imageFilePath according to the settings of the imageResizer.
-	// It returns an error if the resizing process fails.
-	Resize(imageFilePath string) error
+	Resize(imageFilePath string) (string, error)
 	// Destroy releases resources associated with the MagickWand.
 	// It is the responsibility of the caller to invoke this function
 	// on each ImageMagick object after the resize is complete to free up the memory.
@@ -73,24 +72,25 @@ func (ir *imageResizer) ensureDimensions() error {
 	return nil
 }
 
-func (i *imageResizer) Resize(imageFilePath string) error {
+func (i *imageResizer) Resize(imageFilePath string) (string, error) {
+	var resizedImageFilePath string
 	if err := i.mw.ReadImage(imageFilePath); err != nil {
-		return errors.Wrapf(err, "reading image %s", imageFilePath)
+		return resizedImageFilePath, errors.Wrapf(err, "reading image %s", imageFilePath)
 	}
 	if err := i.ensureDimensions(); err != nil {
-		return err
+		return resizedImageFilePath, err
 	}
 	if err := i.mw.ResizeImage(uint(*i.newWidth), uint(*i.newHeight), imagick.FilterType(i.filterType)); err != nil {
-		return errors.Wrap(err, "resizing image")
+		return resizedImageFilePath, errors.Wrap(err, "resizing image")
 	}
 	if err := i.mw.SetImageCompressionQuality(uint(i.compressionQuality)); err != nil {
-		return errors.Wrapf(err, "setting image compression quality to %d", i.compressionQuality)
+		return resizedImageFilePath, errors.Wrapf(err, "setting image compression quality to %d", i.compressionQuality)
 	}
-	resizedImageFilePath := i.resizedImageFilePath(imageFilePath)
+	resizedImageFilePath = i.resizedImageFilePath(imageFilePath)
 	if err := i.mw.WriteImage(resizedImageFilePath); err != nil {
-		return errors.Wrapf(err, "writing image %s", resizedImageFilePath)
+		return "", errors.Wrapf(err, "writing image %s", resizedImageFilePath)
 	}
-	return nil
+	return resizedImageFilePath, nil
 }
 
 func (i *imageResizer) Destroy() {
