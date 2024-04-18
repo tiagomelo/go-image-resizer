@@ -59,14 +59,16 @@ func TestNew(t *testing.T) {
 
 func TestResize(t *testing.T) {
 	testCases := []struct {
-		name          string
-		newWidth      *int
-		mockClosure   func(m *mockMagickWand)
-		expectedError error
+		name           string
+		newWidth       *int
+		mockClosure    func(m *mockMagickWand)
+		expectedOutput string
+		expectedError  error
 	}{
 		{
-			name:        "happy path",
-			mockClosure: func(m *mockMagickWand) {},
+			name:           "happy path",
+			mockClosure:    func(m *mockMagickWand) {},
+			expectedOutput: "/path/to/dir/someImage_resized.jpg",
 		},
 		{
 			name: "error when reading image",
@@ -100,7 +102,7 @@ func TestResize(t *testing.T) {
 			mockClosure: func(m *mockMagickWand) {
 				m.errWriteImage = errors.New("write image error")
 			},
-			expectedError: errors.New("writing image someImage_resized.jpg: write image error"),
+			expectedError: errors.New("writing image /path/to/dir/someImage_resized.jpg: write image error"),
 		},
 	}
 	for _, tc := range testCases {
@@ -111,8 +113,9 @@ func TestResize(t *testing.T) {
 				mw:                 m,
 				newWidth:           tc.newWidth,
 				compressionQuality: 50,
+				outputDir:          "/path/to/dir",
 			}
-			err := ir.Resize("someImage.jpg")
+			output, err := ir.Resize("someImage.jpg")
 			if err != nil {
 				if tc.expectedError == nil {
 					t.Fatalf("expected no error, got %v", err)
@@ -122,6 +125,7 @@ func TestResize(t *testing.T) {
 				if tc.expectedError != nil {
 					t.Fatalf("expected error %v, got nil", tc.expectedError)
 				}
+				require.Equal(t, tc.expectedOutput, output)
 			}
 		})
 	}

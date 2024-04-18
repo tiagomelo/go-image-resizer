@@ -42,10 +42,12 @@ func main() {
 		imageresizer.WithFilterType(imageresizer.FILTER_LANCZOS),
 		imageresizer.WithOutputDir("/path/to/dir"),
 	)
-	if err := ir.Resize(originalImgFile); err != nil {
+	resizedImageFilePath, err := ir.Resize(originalImgFile)
+	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	fmt.Printf("resizedImageFilePath: %v\n", resizedImageFilePath)
 	// Destroy should be called after Resize() completes.
 	ir.Destroy()
 	// Terminate() should be called when your program exits.
